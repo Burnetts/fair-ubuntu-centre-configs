@@ -1,0 +1,15 @@
+auto lo
+iface lo inet loopback
+
+mapping eth0
+	script /etc/network/whoami.sh
+	map OFFLINE OFFLINE
+	map ONLINE ONLINE
+
+iface OFFLINE inet dhcp
+
+iface ONLINE inet dhcp
+	dns-nameservers 192.168.2.1 192.168.10.1
+	post-up resolvconf -d eth0.dhclient
+
+auto eth0

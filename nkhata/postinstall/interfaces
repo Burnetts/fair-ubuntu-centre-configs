@@ -1,0 +1,23 @@
+auto lo
+iface lo inet loopback
+
+# Do not let network manager manage eth0
+# Do not issues this command, makes the computer stall for a network connection
+# auto eth0
+
+#iface eth0 inet static
+#address 192.168.10.1
+#netmask 255.255.0.0
+#gateway 192.168.10.1
+
+# Configuration for typical laptops
+auto wlan0
+iface wlan0 inet dhcp
+wireless-essid FAIR
+wireless-mode managed
+
+# For Thinkpad R52 and T43, it does not use wlan0 but eth1
+#auto eth1
+#iface eth1 inet dhcp
+#wireless-essid FAIR
+#wireless-mode managed

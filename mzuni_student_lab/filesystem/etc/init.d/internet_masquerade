@@ -1,0 +1,46 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          masquerade.sh
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Adds masquerading between two network interfaces
+# Description:
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+. /lib/lsb/init-functions
+
+do_stop () {
+    iptables-restore < /tmp/iptables-old
+    echo 0 > /proc/sys/net/ipv4/ip_forward
+}
+
+do_start () {
+    iptables-save > /tmp/iptables-old
+    EXTERNAL=eth0
+    INTERNAL=eth1
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+    /sbin/iptables -t nat -A POSTROUTING -o $EXTERNAL -j MASQUERADE
+    /sbin/iptables -A FORWARD -i $EXTERNAL -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    /sbin/iptables -A FORWARD -i $INTERNAL -o $EXTERNAL -j ACCEPT
+}
+
+case "$1" in
+  start)
+	do_start
+	;;
+  restart|reload|force-reload)
+	echo "Error: argument '$1' not supported" >&2
+	exit 3
+	;;
+  stop)
+	do_stop
+	;;
+  *)
+	echo "Usage: $0 start|stop" >&2
+	exit 3
+	;;
+esac
